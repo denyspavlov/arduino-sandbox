@@ -2,6 +2,9 @@
 
 Simple OLED example.
 
+*Wokwi*
+https://wokwi.com/projects/387919206799139841
+
 *Components*
 Arduino Pro Mini - Compatible 5V ATmega328 16MHz Board
 https://www.ebay.co.uk/itm/262945527227?var=561951098804
