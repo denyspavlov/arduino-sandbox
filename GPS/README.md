@@ -3,7 +3,7 @@
 Simple GPS example.
 
 *Wokwi*
-TODO
+TODO add diagram
 
 VCC = VCC
 GRD = GRD
