@@ -1,4 +1,4 @@
-# GPS NEO6
+# GPS NEO6M
 
 Simple GPS example.
 
