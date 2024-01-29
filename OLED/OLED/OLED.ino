@@ -2,6 +2,8 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
+#include <SoftwareSerial.h>
+
 // OLED
 // PINs A4 (SDA) and A5 (SLA) preconfigured for I2C
 #define OLED_RESET -1 
@@ -11,11 +13,14 @@
 
 Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+//SoftwareSerial gpsSerial(2, 3);
+
 unsigned long timer = 0;
 unsigned long lastDiff = 0;
 
 void setup() {
   Serial.begin(9600);
+  
   i2CdeviceScan();
   initOLED();
   oledPrint(0, 0, "I am up. Type something and I will echo.");
@@ -29,6 +34,9 @@ void loop() {
     oledPrint(0, 10, Serial.readString());
   }
   printTime();
+  // if (gpsSerial.available()) {
+  //   oledPrint(0, 20, gpsSerial.readString());
+  // }
 }
 
 void printTime() {
