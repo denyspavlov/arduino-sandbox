@@ -1,3 +1,4 @@
+#include "WireAdapter.h"
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -9,7 +10,8 @@
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
-Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+WireAdapter oledI2c(A2, A3);
+Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &oledI2c, OLED_RESET);
 
 unsigned long timer = 0;
 unsigned long lastDiff = 0;
@@ -34,9 +36,9 @@ void loop() {
 
 void printTime() {
   unsigned long now = millis();
-  int diffInSeconds = (int) ((now - timer) / 1000);
+  unsigned long diffInSeconds = (now - timer) / 1000;
   if (diffInSeconds - lastDiff > 0) {
-    String timeAsString = String(diffInSeconds);
+    String timeAsString = String((int) diffInSeconds);
     oledPrint(124 - timeAsString.length() * 6, 50, timeAsString);
     lastDiff = diffInSeconds;
   }
@@ -61,17 +63,21 @@ void oledPrint(int x, int y, String text) {
   oled.print(text);
   oled.display();
   Serial.print("Printed: ");
+  Serial.print(x);
+  Serial.print(",");
+  Serial.print(y);
+  Serial.print(",");
   Serial.println(text);
 }
 
 void i2CdeviceScan() {
   Serial.println("Scanning I2C");
   byte count = 0;
-  Wire.begin();
+  oledI2c.begin();
   for (byte i = 1; i < 120; i++)
   {
-    Wire.beginTransmission (i);
-    if (Wire.endTransmission () == 0)
+    oledI2c.beginTransmission (i);
+    if (oledI2c.endTransmission () == 0)
       {
       Serial.print ("Found address: ");
       Serial.print (i, DEC);
