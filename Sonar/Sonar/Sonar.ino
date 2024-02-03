@@ -59,7 +59,7 @@ void oledWelcome() {
   oled.clearDisplay();
   oledSweepScreenZoom();
   oledSweepScreenAngle();
-  oledPrint(0, 20, "Sonar is ready, press the button to start the sweep");
+  oledPrint(0, 20, "Sonar is ready, press sonar button to start sweep, or use zoom button to select the range");
   oled.display();
 }
 
@@ -169,8 +169,8 @@ void plotXY(byte angle, float distance) {
   int x = (int)(distance * cos(radians));
   int y = (int)(distance * sin(radians));
 
-  sonarMap[sonarAngle][0] = (byte)map(x, -SONAR_RANGE, SONAR_RANGE, 2, SCREEN_WIDTH - 2);
-  sonarMap[sonarAngle][1] = (byte)map(y, 0, SONAR_RANGE, SCREEN_HEIGHT - 2, 2);
+  sonarMap[sonarAngle][0] = (byte)map(x, -zoomLevel, zoomLevel, 2, SCREEN_WIDTH - 2);
+  sonarMap[sonarAngle][1] = (byte)map(y, 0, zoomLevel, SCREEN_HEIGHT - 2, 2);
 
   Serial.print(F("plotXY "));
   Serial.print(sonarAngle);
