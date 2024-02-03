@@ -187,7 +187,9 @@ void plotXY(byte angle, float distance) {
   Serial.println(F(")"));
 
   oledPrintPixel(lastX, lastY, true);
-  oledPrintPixel(sonarMap[sonarAngle][0], sonarMap[sonarAngle][1], false);
+  if (distance < (zoomLevel + 10)) { // do not plot distances beyond zoom + 10cm
+    oledPrintPixel(sonarMap[sonarAngle][0], sonarMap[sonarAngle][1], false);
+  }
   oledSweepScreenAngle();
 }
 
