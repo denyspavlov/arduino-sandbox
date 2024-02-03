@@ -48,7 +48,7 @@ void initOLED() {
     delay(100);
   }
   delay(2000);         // wait two seconds for initializing
-  oled.clearDisplay(); // clear display
+  oledClear();
   Serial.println (F("OLED ready"));
 }
 
@@ -56,6 +56,31 @@ void oledWelcome() {
     oled.clearDisplay();
     oledPrint(0, 0, "Sonar is ready, press the button to start the sweep");
     oled.display();
+}
+
+void oledClear() {
+  oled.clearDisplay(); // clear display
+  oled.display();    
+}
+
+void oledSweepScreen() {
+  oledClear();
+  oledPrint(0, 0, "R:");
+  oledPrint(12, 0, String(SONAR_RANGE));
+  oledPrint(SCREEN_WIDTH - 30, 0, "A:");
+  oledSweepScreenAngle();
+}
+
+void oledSweepScreenAngle() {
+  if (sonarAngle < 10) {
+    oledPrint(SCREEN_WIDTH - 18, 0, "  ");
+    oledPrint(SCREEN_WIDTH - 8, 0, String(sonarAngle));
+  } else if (sonarAngle < 100) {
+    oledPrint(SCREEN_WIDTH - 18, 0, " ");
+    oledPrint(SCREEN_WIDTH - 12, 0, String(sonarAngle));
+  } else {
+    oledPrint(SCREEN_WIDTH - 18, 0, String(sonarAngle));
+  }
 }
 
 void oledPrintPixel(int x, int y, bool black = false) {
@@ -90,8 +115,7 @@ void onSonarButtonPress(bool toggle) {
     resetSweep();
     oledWelcome();
   } else {
-    oled.clearDisplay();
-    oled.display();    
+    oledSweepScreen();
   }
 }
 
@@ -108,6 +132,11 @@ void onSonarButtonPress(bool toggle) {
  * 0* = 120,60
  */
 void plotXY(byte angle, float distance) {
+
+  if (distance < 2) {
+    // too close do not plot
+    return;
+  }
 
   byte lastX = sonarMap[sonarAngle][0];
   byte lastY = sonarMap[sonarAngle][1];
@@ -135,10 +164,11 @@ void plotXY(byte angle, float distance) {
 
   oledPrintPixel(lastX, lastY, true);
   oledPrintPixel(sonarMap[sonarAngle][0], sonarMap[sonarAngle][1], false);
+  oledSweepScreenAngle();
 
 }
 
-void sweepOnce() {
+void sweepOnce(bool changePosition = true) {
 
   sonarSweepData[sonarAngle] = sonic.getDistanceCm();
   plotXY(sonarAngle, sonarSweepData[sonarAngle]);
@@ -153,23 +183,25 @@ void sweepOnce() {
   Serial.print(sonarMap[sonarAngle][1]);
   Serial.println(F(")"));
 
-  if (sonarSweepToZero) {
-    if (sonarAngle > 0) {
-      sonarAngle--; // move 1 degree towards zero
-      pos.write(sonarAngle);
+  if (changePosition) {
+    if (sonarSweepToZero) {
+      if (sonarAngle > 0) {
+        sonarAngle--; // move 1 degree towards zero
+        pos.write(sonarAngle);
+      } else {
+        sonarSweepToZero = false; // change the direction
+      }
     } else {
-      sonarSweepToZero = false; // change the direction
+      if (sonarAngle < 180) {
+        sonarAngle++; // move 1 degree towards one
+        pos.write(sonarAngle);
+      } else {
+        sonarSweepToZero = true;  // change the direction
+      }
     }
-  } else {
-    if (sonarAngle < 180) {
-      sonarAngle++; // move 1 degree towards one
-      pos.write(sonarAngle);
-    } else {
-      sonarSweepToZero = true;  // change the direction
-    }
-  }
 
-  delay(100);
+    delay(10); // ensure we moved
+  }
 }
 
 void setup() {
@@ -192,15 +224,17 @@ void loop() {
 
   if (Serial.available()) {
     String cmd = Serial.readStringUntil('\n');
-    if (cmd.equals("s")) {
-      sweepOnce();
-      resetSweep();
+    if (cmd.equals("c")) {
+      oledSweepScreen();    
+    } else if (cmd.equals("s")) {
+      sweepOnce(false);
+      // resetSweep();
     } else {
       int degrees = atoi(cmd.c_str());
       pos.write(degrees);
       sonarAngle = degrees;
       sweepOnce();
-      resetSweep();
+      //resetSweep();
     }
   }
 
