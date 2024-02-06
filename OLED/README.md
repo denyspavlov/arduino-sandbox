@@ -3,7 +3,25 @@
 Simple OLED example.
 
 *Wokwi*
+I2C version only
 https://wokwi.com/projects/387919206799139841
+
+Dual version is controlled through I2C constant, if commented out will use SPI display
+
+Connections:
+| Arduino Pro Mini | OLED I2C (4 pin) | OLED SPI (7 pin) |
+| ---------------- |:----------------:| ----------------:|
+| ACC              | VCC              | VCC              |
+| GND              | GND              | GND              |
+| A5 (I2C SCL)     | SCL              |                  |
+| A4 (I2C SDA)     | SDA              |                  |
+| 13 (SPI SCK)     |                  | D0               |
+| 11 (SPI MOSI)    |                  | D1               |
+| 8                |                  | RES              |
+| 7                |                  | CS               |
+| 6                |                  | DC               |
+
+NOTE: Use Adafruit Hardware SPI version (defaulkt sketch uses software SPI for UNO)
 
 *Components*
 Arduino Pro Mini - Compatible 5V ATmega328 16MHz Board
