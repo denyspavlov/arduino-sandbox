@@ -7,7 +7,10 @@
 
 #include "MultiToggleButton.h"
 #include "Joystick.h"
+#include "RangeSelector.h"
 
+// Uncomment = joystick mode, comment = potentiometer mode
+//#define JOYSTICK_MODE 1
 
 #define INPUT_SENSITIVITY 100
 
@@ -24,11 +27,19 @@ MultiToggleButton bl2(BTN_L2_PIN, 1, HIGH, INPUT_SENSITIVITY);
 MultiToggleButton br1(BTN_R1_PIN, 1, HIGH, INPUT_SENSITIVITY);
 MultiToggleButton br2(BTN_R2_PIN, 1, HIGH, INPUT_SENSITIVITY);
 
+#ifdef JOYSTICK_MODE
+
 #define J_BTN_PIN 7
 #define J_Y_PIN A1
 #define J_X_PIN A3
 
 Joystick jst(J_BTN_PIN, J_X_PIN, J_Y_PIN, INPUT_SENSITIVITY, J_RANGE_X, J_RANGE_Y);
+#else 
+
+#define PTN_PIN A5
+RangeSelector rsl(PTN_PIN, INPUT_SENSITIVITY, J_RANGE_X, J_RANGE_Y);
+
+#endif 
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -103,7 +114,11 @@ void setup() {
   br1.attach(onBR1);
   br2.attach(onBR2);
 
+  #ifdef JOYSTICK_MODE
   jst.attach(onJSelect, onJXY);
+  #else 
+  rsl.attach(onJXY);
+  #endif
 
   if (!oled.begin(SSD1306_SWITCHCAPVCC)) {
     Serial.println("Failed to start SSD1306 OLED");
@@ -121,7 +136,11 @@ void loop() {
   br1.listen();
   bl2.listen();
   bl1.listen();
+  #ifdef JOYSTICK_MODE
   jst.listen();
+  #else 
+  rsl.listen();
+  #endif
 }
 
 
