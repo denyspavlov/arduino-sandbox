@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "MultiToggleButton.h"
+#include "Log.h"
 
 MultiToggleButton::MultiToggleButton(int btnPin, int toggles, int idleState, unsigned long sensitivity)
   : _btnPin(btnPin), _toggles(toggles), _idleState(idleState), _sensitivity(sensitivity), _lastRead(idleState), _toggleIndex(0), _toggleUp(true) {}
@@ -7,12 +8,7 @@ MultiToggleButton::MultiToggleButton(int btnPin, int toggles, int idleState, uns
 void MultiToggleButton::attach(void (*listener)(int)) {
   _listener = listener;
   pinMode(_btnPin, INPUT);
-  Serial.print(F("btnPin="));
-  Serial.print(_btnPin);
-  Serial.print(F(",idleState="));
-  Serial.print(_idleState);
-  Serial.print(F(",sensitivity="));
-  Serial.println(_sensitivity);
+  __logDebug__("MT:btnPin=", _btnPin, ",idleState=", _idleState, ",sensitivity=", _sensitivity);
 }
 
 void MultiToggleButton::listen() {
@@ -39,10 +35,7 @@ void MultiToggleButton::listen() {
         }
       }
       
-      Serial.print(F("btnPin="));
-      Serial.print(_btnPin);
-      Serial.print(F(":->_toggleIndex="));
-      Serial.println(_toggleIndex);
+      __logDebug__("MT:btnPin=", _btnPin, ":->_toggleIndex=", _toggleIndex);
       _listener(_toggleIndex);
     }
     _lastRead = _read;

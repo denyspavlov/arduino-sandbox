@@ -13,7 +13,7 @@ public:
    * Recommended to setup in global.
    * 
    * btnPin     - Button pin (backed by a PullUp resistor)
-   * toggles    - levels to toggle
+   * toggles    - levels to toggle (for ON/OFF toggles=1)
    * idleState  - LOW or HIGH (when not pressed)
    * sensitivity - timeout between reads (bounce in a switch)
    */

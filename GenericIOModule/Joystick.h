@@ -33,7 +33,7 @@ public:
   void listen();
 
 private:
-  const MultiToggleButton *_btn;
+  MultiToggleButton *_btn;
   const int _xPin;
   const int _yPin;
   const unsigned long _sensitivity;
