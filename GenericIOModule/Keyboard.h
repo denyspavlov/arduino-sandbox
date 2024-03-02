@@ -1,8 +1,8 @@
-#ifndef __OLED_KEYBOARD_SH1107__
-#define __OLED_KEYBOARD_SH1107__
+#ifndef __KEYBOARD__
+#define __KEYBOARD__
 
 #include <Arduino.h>
-#include <Adafruit_SH110X.h>
+#include "Display.h"
 #include "PushButton.h"
 #include "RangeSelector.h"
 
@@ -11,18 +11,14 @@
 /**
  * Potentiometer selector that can remap to a matrix
  */
-class OLEDKeyboardSH1107 {
+class Keyboard {
 public:
   /**
    * Constructor that initialises the object (not hardware).
    * Recommended to setup in global.
    * 
    * OLED (SPI):
-   * clk          - SPI clock
-   * MOSI         - SPI MOSI
-   * oledResetPin - reset pin (e.g. 8)
-   * oledDcPin    - DC pin (e.g. 6)
-   * oledCsPin    - CS pin (e.g. 7)
+   * display      - shared display object
    * Potentiometer:
    * ptnPin       - Potentiometer pin (analog e.g. A5)
    * ptnLow       - lowest reading
@@ -36,8 +32,8 @@ public:
    * General:
    * sensitivity  - timeout between reads
    */
-  OLEDKeyboardSH1107(
-    int oledClk, int oledMosi, int oledResetPin, int oledDcPin, int oledCsPin, int oledWidth, int oledHeight,
+  Keyboard(
+    Display * display,
     int ptnPin, int ptnLow, int ptnHigh,
     int btnPin, int btnInputA1, int btnInputA2, int btnClearA1, int btnClearA2, int btnSelectA1, int btnSelectA2, int btnDeleteA1, int btnDeleteA2, 
     int btnIdleState = HIGH, unsigned long sensitivity = 100);
@@ -66,7 +62,7 @@ public:
   void readInput(char prompt[], char layout[], int rangeX, int rangeY);
 
 private:
-  Adafruit_SH1107 _oled;
+  Display * _display;
   RangeSelector _rsl;
   PushButton _mode;
   PushButton _clr;
@@ -79,8 +75,6 @@ private:
   bool _modeToggle = 1;
   int _inputLength = 0;
   char * _input = new char[MAX_INPUT + 1];
-  char * _prompt;
-  int _promptLength = 0;
   char * _layout;
   void (*_onInputModeListener)(void);
   void (*_onCaptureListener)(char*,int);
@@ -90,11 +84,10 @@ private:
   void _onSel();
   void _onDel();
   void _onRsl(int x, int y);
-  void _oledPrint(int col, int row, String text, bool inverse);
-  void _oledPrintWelcome();
-  void _oledPrintInput(int selectX, int selectY);
-  void _oledPrintInputChangeCursor(int oldX, int oldY, int selectX, int selectY);
-  void _oledPrintInputValue();
+  void _displayPrintLayout(int selectX, int selectY);
+  void _displayPrintLayoutChangeCursor(int oldX, int oldY, int selectX, int selectY);
+  void _displayClearLayout();
+  void _displayPrintInputValue();
   
 };
 

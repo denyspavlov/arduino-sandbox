@@ -53,6 +53,7 @@ void OLEDKeyboardSH1107::_onClr() {
     _input[0] = '\0';
     _inputLength = 0;
     _oled.clearDisplay();
+    _oled.print(F("X"));
     _oledPrintInput(_cursorX, _cursorY);
   }
 }
@@ -209,14 +210,11 @@ void OLEDKeyboardSH1107::_oledPrintInputValue() {
     char c = (char) _input[i];
     _oled.write(c);
   }  
-  __logDebug__("OK000");
   _oled.display();
-  __logDebug__("OK001");
   __logDebug__("OKB:oledPrintInputValue - end");
-  __logDebug__("OK002");
 }
 
-void OLEDKeyboardSH1107::attach(void (*onInputModeListener)(void), void (*onCaptureListener)(byte*,int)) {
+void OLEDKeyboardSH1107::attach(void (*onInputModeListener)(void), void (*onCaptureListener)(char*,int)) {
 
   __logDebug__("OKB:attach ", OLED_KEYBOARD);
 
@@ -262,8 +260,8 @@ void OLEDKeyboardSH1107::listen() {
   }
 }
 
-void OLEDKeyboardSH1107::readInput(char prompt[], byte * layout, int rangeX, int rangeY) {
-  __logDebug__("OKB:readInput,layout=", sizeof(layout) / sizeof(byte), ",rangeX=", rangeX, ",rangeY=", rangeY);
+void OLEDKeyboardSH1107::readInput(char prompt[], char layout[], int rangeX, int rangeY) {
+  __logDebug__("OKB:readInput,prompt=", prompt, ",layout=", layout, ",rangeX=", rangeX, ",rangeY=", rangeY);
   _layout = layout;
   _prompt = prompt;
   _promptLength = sizeof(prompt) / sizeof(char);

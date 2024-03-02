@@ -1,3 +1,13 @@
+#include <Arduino.h>
+
+#ifdef __AVR__
+  #define LED_BUILTIN 13
+#elif defined(ESP32)
+  #define LED_BUILTIN 2
+#elif defined(ESP8266)
+  #define LED_BUILTIN 2
+#endif
+
 /**
  * Blank sketch to reset MCU
  */
