@@ -17,8 +17,8 @@
 // 3 ERROR, INFO and DEBUG
 // ~ OFF
 
-#if !defined(LOG_LEVEL)
-  #define LOG_LEVEL 0 // Default log level
+#ifndef LOG_LEVEL
+  #define LOG_LEVEL 3 // Default log level
 #endif
 
 #define DEBUG_PREFIX "DEBUG: "

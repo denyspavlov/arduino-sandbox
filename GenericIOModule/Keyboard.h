@@ -72,7 +72,7 @@ private:
   int _cursorY = 0;
   int _rangeX = 1;
   int _rangeY = 1;
-  bool _modeToggle = 1;
+  bool _inputMode = 0;
   int _inputLength = 0;
   char * _input = new char[MAX_INPUT + 1];
   char * _layout;
