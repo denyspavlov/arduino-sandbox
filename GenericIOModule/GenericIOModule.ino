@@ -211,14 +211,23 @@ bool connectToWiFi() {
       display.printChar(0, 2, ' ', blink);
       display.update();
       blink ^= 1;
+      count++;
       __logDebug__("connectToWiFi - connecting, ssid=", ssid, ",pw=", pw , ",status=", WiFi.status()); 
       if (count > 20) {
         __logDebug__("connectToWiFi - finish - FAIL (unable to connect)");
+        ssidi = -1; // reset selection to enter re-select
+        display.printText(0, 2, F("Unable to connect (check network & password)"), false);
+        display.update();
+        while(true) {
+          if (BTN_MODE == btns.listen()) {
+            break;
+          }
+        }
         return false;
       }
     }
 
-    display.printText(0, 2, "Connected:", false);
+    display.printText(0, 2, F("Connected:"), false);
     display.printText(0, 3, WiFi.localIP().toString(), false);
 
     display.update();
