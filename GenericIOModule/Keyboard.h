@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include "Display.h"
-#include "PushButton.h"
+#include "PushButtonArray.h"
 #include "RangeSelector.h"
 
 #define MAX_INPUT 20
@@ -34,9 +34,8 @@ public:
    */
   Keyboard(
     Display * display,
-    int ptnPin, int ptnLow, int ptnHigh,
-    int btnPin, int btnInputA1, int btnInputA2, int btnClearA1, int btnClearA2, int btnSelectA1, int btnSelectA2, int btnDeleteA1, int btnDeleteA2, 
-    int btnIdleState = HIGH, unsigned long sensitivity = 100);
+    RangeSelector * rsl,
+    PushButtonArray * btns, int btnMode = 0, int btnDel = 1, int btnSel = 2, int btnClr = 3);
   
   /**
    * Hardware initialization. Use in setup().
@@ -62,12 +61,17 @@ public:
   void readInput(char prompt[], char layout[], int rangeX, int rangeY);
 
 private:
+  
   Display * _display;
-  RangeSelector _rsl;
-  PushButton _mode;
-  PushButton _clr;
-  PushButton _sel;
-  PushButton _del;
+  
+  RangeSelector * _rsl;
+  
+  PushButtonArray * _btns;
+  int _btnMode = 0; 
+  int _btnDel = 1; 
+  int _btnSel = 2; 
+  int _btnClr = 3;
+  
   int _cursorX = 0;
   int _cursorY = 0;
   int _rangeX = 1;

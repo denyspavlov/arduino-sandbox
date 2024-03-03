@@ -3,23 +3,19 @@
 
 #include "Keyboard.h"
 #include "Display.h"
-#include "PushButton.h"
+#include "PushButtonArray.h"
 #include "RangeSelector.h"
 #include "Log.h"
 
 
 Keyboard::Keyboard(
   Display * display,
-  int ptnPin,  int ptnLow, int ptnHigh,
-  int btnPin, int btnInputA1, int btnInputA2, int btnClearA1, int btnClearA2, int btnSelectA1, int btnSelectA2, int btnDeleteA1, int btnDeleteA2, 
-  int btnIdleState, unsigned long sensitivity
+  RangeSelector * rsl,
+  PushButtonArray * btns, int btnMode, int btnDel, int btnSel, int btnClr
 ) : 
   _display(display),
-  _rsl(ptnPin, sensitivity, 1, 1, ptnLow, ptnHigh),
-  _mode(btnPin, btnInputA1, btnInputA2, btnIdleState, sensitivity),
-  _clr(btnPin, btnClearA1, btnClearA2, btnIdleState, sensitivity),
-  _sel(btnPin, btnSelectA1, btnSelectA2, btnIdleState, sensitivity),
-  _del(btnPin, btnDeleteA1, btnDeleteA2, btnIdleState, sensitivity) 
+  _rsl(rsl),
+  _btns(btns), _btnMode(btnMode), _btnDel(btnDel), _btnSel(btnSel), _btnClr(btnClr)
 {}
 
 void Keyboard::_onMode() {
@@ -157,12 +153,6 @@ void Keyboard::attach(void (*onInputModeListener)(void), void (*onCaptureListene
 
   __logDebug__("Keyboard:attach - start");
 
-  _clr.attach();
-  _sel.attach();
-  _del.attach();
-  _rsl.attach();
-  _mode.attach();
-
   _onInputModeListener = onInputModeListener;
   _onCaptureListener =onCaptureListener;
 
@@ -171,19 +161,23 @@ void Keyboard::attach(void (*onInputModeListener)(void), void (*onCaptureListene
 
 void Keyboard::listen() {
   if (_inputMode) {
-    if (_mode.listen()) {
-      _onMode();
+    int push = _btns->listen();
+    if (push >= 0) {
+      __logDebug__("Keyboard:listen,push=", push);
+      if (push == _btnMode) {
+        _onMode();
+      }
+      if (push == _btnClr) {
+        _onClr();
+      }
+      if (push == _btnSel) {
+        _onSel();
+      }
+      if (push == _btnDel) {
+        _onDel();
+      }
     }
-    if (_clr.listen()) {
-      _onClr();
-    }
-    if (_sel.listen()) {
-      _onSel();
-    }
-    if (_del.listen()) {
-      _onDel();
-    }
-    RangeSelectorXY xy = _rsl.listen(_rangeX, _rangeY);
+    RangeSelectorXY xy = _rsl->listen(_rangeX, _rangeY);
     if (xy.updated) {
       _onRsl(xy.x, xy.y);
     }
