@@ -13,6 +13,7 @@
 #include "Display.h"
 #include "Keyboard.h"
 #include "PushButtonArray.h"
+#include "Alarm.h"
 
 #define INPUT_SENSITIVITY 100
 
@@ -69,6 +70,14 @@ Keyboard kbd(
   &display,
   &sel,
   &btns, BTN_MODE, BTN_DEL, BTN_SEL, BTN_CLR
+);
+
+#define ALR_PIN  17
+#define ALR_INRV 300
+#define ALR_MAX  1500
+
+Alarm alr(
+  ALR_PIN, ALR_INRV
 );
 
 // WiFi
@@ -142,6 +151,10 @@ void onSelectorListener(int x, int y) {
 
 }
 
+void onAlarmChange(bool toggle) {
+
+}
+
 bool connectToWiFi() {
   
   __logDebug__("connectToWiFi - start");  
@@ -201,7 +214,8 @@ bool connectToWiFi() {
     display.update();
 
     WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, pw);
+    //WiFi.begin(ssid, pw);
+    WiFi.begin("VM0916253", "Lg3sgckdzfjv");
 
 
     bool blink = 0;
@@ -240,6 +254,9 @@ bool connectToWiFi() {
   
   __logDebug__("connectToWiFi - finish - OK");
   wifiConnecting = false;
+
+  alr.toggle(true, ALR_MAX);
+
   return true;
 
 }
@@ -255,6 +272,7 @@ void setup() {
 
   btns.attach(onButtonPushListener);
   sel.attach(onSelectorListener);
+  alr.attach(onAlarmChange);
 
   kbd.attach(onInputModeListener, onCaptureListener);
 
@@ -275,6 +293,8 @@ void loop() {
   } else {
     btns.listen();
   }
+
+  alr.listen();
 
   // __logDebug__("PTN:", analogRead(PTN_PIN));
   // __logDebug__("BTN:", analogRead(BTN_PIN));
