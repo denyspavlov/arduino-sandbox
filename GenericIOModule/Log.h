@@ -11,22 +11,22 @@
 // ...
 //
 // LOG_LEVEL values to control logging output
-// 0 OFF
-// 1 ERROR only
-// 2 ERROR and INFO only
-// 3 ERROR, INFO and DEBUG
+// 1 OFF
+// 2 ERROR only
+// 3 ERROR and INFO only
+// 4 ERROR, INFO and DEBUG
 // ~ OFF
 
-#ifndef LOG_LEVEL
-  #define LOG_LEVEL 3 // Default log level
-#endif
+// #ifndef LOG_LEVEL
+//   #define LOG_LEVEL 1 // Default log level
+// #endif
 
 #define DEBUG_PREFIX "DEBUG: "
 #define INFO_PREFIX  "INFO : "
 #define ERROR_PREFIX "ERROR: "
 #define LOG_COMMA    ","
 
-#if LOG_LEVEL == 3
+#if LOG_LEVEL == 4
 
 #define _debugSP1(a) { \
     Serial.print(F(DEBUG_PREFIX)); \
@@ -101,7 +101,7 @@
 
 #endif // DEBUG fuctions end
 
-#if LOG_LEVEL > 1 && LOG_LEVEL <= 3
+#if LOG_LEVEL > 2 && LOG_LEVEL <= 4
 
 #define _infoSP1(a) { \
     Serial.print(F(INFO_PREFIX)); \
@@ -176,7 +176,7 @@
 
 #endif // INFO functions end
 
-#if LOG_LEVEL > 0 && LOG_LEVEL <= 3
+#if LOG_LEVEL > 1 && LOG_LEVEL <= 4
 
 #define _errorSP1(a) { \
     Serial.print(F(ERROR_PREFIX)); \
@@ -254,19 +254,19 @@
 // Macro selector based on parametes
 #define GET_SP_FUNC(_1, _2, _3, _4, _5, _6, _7, _8, NAME, ...) NAME
 
-#if LOG_LEVEL == 0
+#if LOG_LEVEL == 1
   #define __logDebug__(...) 
   #define __logInfo__(...) 
   #define __logError__(...) 
-#elif LOG_LEVEL == 1
+#elif LOG_LEVEL == 2
   #define __logDebug__(...) 
   #define __logInfo__(...) 
   #define __logError__(...) GET_SP_FUNC(__VA_ARGS__, _errorSP8, _errorSP7, _errorSP6, _errorSP5, _errorSP4, _errorSP3, _errorSP2, _errorSP1)(__VA_ARGS__) 
-#elif LOG_LEVEL == 2
+#elif LOG_LEVEL == 3
   #define __logDebug__(...) 
   #define __logInfo__(...) GET_SP_FUNC(__VA_ARGS__, _infoSP8, _infoSP7, _infoSP6, _infoSP5, _infoSP4, _infoSP3, _infoSP2, _infoSP1)(__VA_ARGS__) 
   #define __logError__(...) GET_SP_FUNC(__VA_ARGS__, _errorSP8, _errorSP7, _errorSP6, _errorSP5, _errorSP4, _errorSP3, _errorSP2, _errorSP1)(__VA_ARGS__) 
-#elif LOG_LEVEL == 3
+#elif LOG_LEVEL == 4
   #define __logDebug__(...) GET_SP_FUNC(__VA_ARGS__, _debugSP8, _debugSP7, _debugSP6, _debugSP5, _debugSP4, _debugSP3, _debugSP2, _debugSP1)(__VA_ARGS__) 
   #define __logInfo__(...) GET_SP_FUNC(__VA_ARGS__, _infoSP8, _infoSP7, _infoSP6, _infoSP5, _infoSP4, _infoSP3, _infoSP2, _infoSP1)(__VA_ARGS__) 
   #define __logError__(...) GET_SP_FUNC(__VA_ARGS__, _errorSP8, _errorSP7, _errorSP6, _errorSP5, _errorSP4, _errorSP3, _errorSP2, _errorSP1)(__VA_ARGS__) 

@@ -17,20 +17,16 @@ public:
    * Constructor that initialises the object (not hardware).
    * Recommended to setup in global.
    * 
-   * OLED (SPI):
+   * OLED:
    * display      - shared display object
    * Potentiometer:
-   * ptnPin       - Potentiometer pin (analog e.g. A5)
-   * ptnLow       - lowest reading
-   * ptnHigh      - highest reading
+   * rsl          - share potentiometer/ select wheel (analog)
    * Control buttons (x4)
-   * btnInputPin  - Input mode push button (digital)
-   * btnClearPin  - Clear input push button (digital)
-   * btnSelectPin - Select character push button (digital)
-   * btnDeletePin - Delete character button (digital)
-   * btnIdleState - idle (not pressed) state for button (LOW/HIGH)
-   * General:
-   * sensitivity  - timeout between reads
+   * btns         - shared button array (analog)
+   * btnMode      - mode button index in the array
+   * btnDel       - delete character button index in the array
+   * btnSel       - select character button index in the array
+   * btnClr       - clear input button index in the array
    */
   Keyboard(
     Display * display,

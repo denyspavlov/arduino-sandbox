@@ -19,6 +19,7 @@ bool Alarm::listen() {
     if (_switchToAfter > 0) { // need to change state
       if (_switchTo != _on && now > _switchToAfter) {
         _on = _switchTo;
+        _switchToAfter = -1;
         change = true;
         __logDebug__("AL:listen,switched,_buzzPin=", _buzzPin, ",_on=", _on);
       }
@@ -28,32 +29,42 @@ bool Alarm::listen() {
       int _w = _lastWrite == LOW ? HIGH : LOW;
       digitalWrite(_buzzPin, _w);
       _lastWrite = _w;
+      _lastWriteTime = now;
       __logDebug__("AL:listen,_buzzPin=", _buzzPin, ",_on=", _on, ",_pinWrite=", _w);
     } else if (_lastWrite != LOW) {
       // make sure it is OFF
       digitalWrite(_buzzPin, LOW);
       _lastWrite = LOW;
+      _lastWriteTime = now;
       __logDebug__("AL:listen,_buzzPin=", _buzzPin, ",_on=", _on, ",_pinWrite=", LOW);
     }
-  }
-  if (change && _listener != nullptr) {
-    _listener(_on);
+    if (change && _listener != nullptr) {
+      _listener(_on);
+    }
   }
   return change;
 }
 
 bool Alarm::toggle(bool on, unsigned long duration) {
   bool change = _on != on;
-  _on = on;
-  _switchTo = !on;
-  if (duration > 0) {
-    _switchToAfter = millis() + duration;
-  } else {
-    _switchToAfter = -1;
+  if (!on) { // force silence buzzer
+    digitalWrite(_buzzPin, LOW);
+    _lastWrite = LOW;
+    _lastWriteTime = millis();
+    __logDebug__("AL:listen,_buzzPin=", _buzzPin, ",_on=", _on, ",_pinWrite=", LOW);
   }
-  __logDebug__("AL:toggle=", on, ",_switchTo=", _switchTo, ",_switchToAfter=", _switchToAfter);
-  if (change && _listener != nullptr) {
-    _listener(_on);
+  if (change) {
+    _on = on;
+    _switchTo = !on;
+    if (duration > 0) {
+      _switchToAfter = millis() + duration;
+    } else {
+      _switchToAfter = -1;
+    }
+    __logDebug__("AL:toggle=", on, ",_switchTo=", _switchTo, ",_switchToAfter=", _switchToAfter, ",duration=", duration);
+    if (_listener != nullptr) {
+      _listener(_on);
+    }
   }
   return change;
 }

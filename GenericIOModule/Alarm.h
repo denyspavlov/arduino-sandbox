@@ -1,5 +1,5 @@
-#ifndef __SITE_CHECKER__
-#define __SITE_CHECKER__
+#ifndef __ALARM__
+#define __ALARM__
 
 #include <Arduino.h>
 

@@ -6,7 +6,7 @@
 #include <WiFi.h>
 
 // debug
-#define LOG_LEVEL 3
+#define LOG_LEVEL 1
 #include "Log.h"
 
 // custom components
@@ -14,6 +14,7 @@
 #include "Keyboard.h"
 #include "PushButtonArray.h"
 #include "Alarm.h"
+#include "SiteChecker.h"
 
 #define INPUT_SENSITIVITY 100
 
@@ -41,6 +42,8 @@ Display display(
 #define BTN_CLR 1
 #define BTN_SEL 2
 #define BTN_DEL 3
+#define BTN_CHK 2
+#define BTN_MUT 3
 
 PushButtonArray btns(
   BTN_PIN, 4, new int[8] { 1100, 1500, 1700, 2000, 600, 900, 0, 200 }, HIGH, INPUT_SENSITIVITY
@@ -80,6 +83,12 @@ Alarm alr(
   ALR_PIN, ALR_INRV
 );
 
+SiteChecker sc(
+  &display,
+  &alr,
+  &btns, BTN_MODE, BTN_MUT, BTN_CHK, BTN_CLR
+);
+
 // WiFi
 
 #define MAX_SCAN_TIME 5
@@ -92,6 +101,8 @@ bool wifiConnecting = true;
 int ssidi = -1;
 char * ssid;
 char * pw;
+
+bool siteChecker = false;
 
 
 
@@ -133,14 +144,10 @@ void onButtonPushListener(int btn) {
 
   __logDebug__("onButtonPushListener=", btn);
 
-  if (!wifiConnecting) {
+  if (!wifiConnecting && !siteChecker && btn == BTN_MODE) {
 
-    if (btn == BTN_MODE) {
-      if (!inputMode) {
-        inputMode = true;
-        kbd.readInput("Testing Keyboard.\nType something.", KBD_LAYOUT_FULL, KBD_LAYOUT_FULL_COLS, KBD_LAYOUT_FULL_ROWS);
-      }
-    }
+      siteChecker = true;
+      sc.toggle(siteChecker);
 
   }
 
@@ -152,6 +159,14 @@ void onSelectorListener(int x, int y) {
 }
 
 void onAlarmChange(bool toggle) {
+
+}
+
+void onSiteCheckedListener(bool toggle) {
+
+  __logDebug__("onSiteCheckedListener=", toggle);
+
+  siteChecker = toggle;
 
 }
 
@@ -214,14 +229,12 @@ bool connectToWiFi() {
     display.update();
 
     WiFi.mode(WIFI_STA);
-    //WiFi.begin(ssid, pw);
-    WiFi.begin("VM0916253", "Lg3sgckdzfjv");
+    WiFi.begin(ssid, pw);
 
 
-    bool blink = 0;
+    bool blink = 1;
     int count = 0;
     while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
       display.printChar(0, 2, ' ', blink);
       display.update();
       blink ^= 1;
@@ -239,6 +252,7 @@ bool connectToWiFi() {
         }
         return false;
       }
+      delay(500);
     }
 
     display.printText(0, 2, F("Connected:"), false);
@@ -247,6 +261,34 @@ bool connectToWiFi() {
     display.update();
 
     WiFi.scanDelete();
+
+    delay(100);
+
+    __logDebug__("connectToWiFi - NTP time sync - start"); 
+
+    display.printText(0, 4, F("NTP time sync:"), false);
+    display.update();
+
+    configTime(0, 0, "pool.ntp.org");
+
+    blink = 1;
+    time_t nowSecs = time(nullptr);
+    while (nowSecs < 8 * 3600 * 2) {
+      delay(500);
+      display.printChar(0, 5, ' ', blink);
+      display.update();
+      blink ^= 1;
+      yield();
+      nowSecs = time(nullptr);
+      __logDebug__("connectToWiFi - NTP time sync - in progress, nowSec=", nowSecs); 
+    }
+
+    struct tm timeinfo;
+    gmtime_r(&nowSecs, &timeinfo);
+    display.printText(0, 5, asctime(&timeinfo), false);
+    display.update();
+
+    __logDebug__("connectToWiFi - NTP time sync - finish"); 
 
     delay(100);
 
@@ -274,7 +316,7 @@ void setup() {
   sel.attach(onSelectorListener);
   alr.attach(onAlarmChange);
 
-  kbd.attach(onInputModeListener, onCaptureListener);
+  kbd.attach(onInputModeListener, onCaptureListener);  
 
   display.update(true);
 
@@ -284,12 +326,16 @@ void setup() {
     delay(5000);
   }
 
+  sc.attach(onSiteCheckedListener);
+
 }
 
 void loop() {
 
-  if (inputMode) {
+  if (wifiConnecting && inputMode) {
     kbd.listen();
+  } else if (siteChecker) {
+    sc.listen();
   } else {
     btns.listen();
   }
